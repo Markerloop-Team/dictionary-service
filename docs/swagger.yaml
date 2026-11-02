@@ -1,0 +1,448 @@
+basePath: /api/v1
+definitions:
+  dictionary-service_internal_models.CitiesResponse:
+    properties:
+      cities:
+        items:
+          $ref: '#/definitions/dictionary-service_internal_models.City'
+        type: array
+      count:
+        description: Количество на текущей странице
+        type: integer
+      limit:
+        description: Лимит на странице
+        type: integer
+      page:
+        description: Текущая страница
+        type: integer
+      total:
+        description: Общее количество
+        type: integer
+    type: object
+  dictionary-service_internal_models.CitiesSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dictionary-service_internal_models.CitiesResponse'
+      message:
+        type: string
+      meta:
+        $ref: '#/definitions/dictionary-service_internal_models.Meta'
+      success:
+        example: true
+        type: boolean
+    type: object
+  dictionary-service_internal_models.City:
+    properties:
+      code:
+        type: string
+      country_code:
+        type: string
+      name:
+        description: Название на запрошенном языке
+        type: string
+    type: object
+  dictionary-service_internal_models.CountriesResponse:
+    properties:
+      count:
+        description: Количество на текущей странице
+        type: integer
+      countries:
+        items:
+          $ref: '#/definitions/dictionary-service_internal_models.Country'
+        type: array
+      limit:
+        description: Лимит на странице
+        type: integer
+      page:
+        description: Текущая страница
+        type: integer
+      total:
+        description: Общее количество
+        type: integer
+    type: object
+  dictionary-service_internal_models.CountriesSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dictionary-service_internal_models.CountriesResponse'
+      message:
+        type: string
+      meta:
+        $ref: '#/definitions/dictionary-service_internal_models.Meta'
+      success:
+        example: true
+        type: boolean
+    type: object
+  dictionary-service_internal_models.Country:
+    properties:
+      code:
+        type: string
+      name:
+        description: Название на запрошенном языке
+        type: string
+    type: object
+  dictionary-service_internal_models.DictionaryEntry:
+    properties:
+      key:
+        type: string
+      values:
+        additionalProperties:
+          type: string
+        description: language -> translation
+        type: object
+    type: object
+  dictionary-service_internal_models.ErrorCode:
+    enum:
+    - INTERNAL_SERVER_ERROR
+    - BAD_REQUEST
+    - UNAUTHORIZED
+    - FORBIDDEN
+    - NOT_FOUND
+    - CONFLICT
+    - VALIDATION_ERROR
+    - USER_ALREADY_EXISTS
+    - USER_NOT_FOUND
+    - INVALID_CREDENTIALS
+    - EMAIL_NOT_VERIFIED
+    - INVALID_TOKEN
+    - TOKEN_EXPIRED
+    - INVALID_VERIFICATION_CODE
+    type: string
+    x-enum-varnames:
+    - ErrorInternalServer
+    - ErrorBadRequest
+    - ErrorUnauthorized
+    - ErrorForbidden
+    - ErrorNotFound
+    - ErrorConflict
+    - ErrorValidation
+    - ErrorUserAlreadyExists
+    - ErrorUserNotFound
+    - ErrorInvalidCredentials
+    - ErrorEmailNotVerified
+    - ErrorInvalidToken
+    - ErrorTokenExpired
+    - ErrorInvalidVerificationCode
+  dictionary-service_internal_models.ErrorResponseSwagger:
+    properties:
+      error:
+        example: bad_request
+        type: string
+      message:
+        example: Ошибка
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+  dictionary-service_internal_models.ErrorsListSuccessResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dictionary-service_internal_models.LocalizedError'
+        type: array
+      message:
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  dictionary-service_internal_models.GetErrorRequest:
+    properties:
+      app:
+        description: фильтр по приложению (если не указан - общие переводы)
+        type: string
+      code:
+        allOf:
+        - $ref: '#/definitions/dictionary-service_internal_models.ErrorCode'
+        maxLength: 100
+        minLength: 3
+    required:
+    - code
+    type: object
+  dictionary-service_internal_models.GetTranslationsRequest:
+    properties:
+      app:
+        description: фильтр по приложению (если не указан - общие переводы)
+        type: string
+      codes:
+        description: если пустой - возвращает все
+        items:
+          type: string
+        type: array
+    type: object
+  dictionary-service_internal_models.Language:
+    properties:
+      code:
+        description: ru-RU, kk-KZ, en-US
+        type: string
+      name:
+        description: Название на запрошенном языке
+        type: string
+    type: object
+  dictionary-service_internal_models.LanguagesSuccessResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dictionary-service_internal_models.Language'
+        type: array
+      message:
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  dictionary-service_internal_models.LocalizedError:
+    properties:
+      code:
+        $ref: '#/definitions/dictionary-service_internal_models.ErrorCode'
+      details:
+        type: string
+      message:
+        type: string
+    type: object
+  dictionary-service_internal_models.LocalizedErrorSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dictionary-service_internal_models.LocalizedError'
+      message:
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  dictionary-service_internal_models.Meta:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  dictionary-service_internal_models.TranslationsSuccessResponse:
+    properties:
+      data:
+        additionalProperties:
+          $ref: '#/definitions/dictionary-service_internal_models.DictionaryEntry'
+        type: object
+      message:
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+info:
+  contact: {}
+  description: Сервис словарей, локализации и справочных данных Markerloop
+  title: Dictionary Service API
+  version: "1.0"
+paths:
+  /dictionary/cities:
+    get:
+      description: Возвращает города по коду страны с пагинацией и фильтрацией. Язык
+        из Accept-Language.
+      parameters:
+      - default: en
+        description: Язык (ru, kk, en)
+        in: header
+        name: Accept-Language
+        type: string
+      - description: Код страны (обязательно)
+        in: query
+        name: country_code
+        required: true
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Записей на странице (макс 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Поиск по code, name
+        in: query
+        name: search
+        type: string
+      - default: code
+        description: Поле сортировки (code, name)
+        in: query
+        name: sort_by
+        type: string
+      - default: asc
+        description: Порядок (asc, desc)
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dictionary-service_internal_models.CitiesSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dictionary-service_internal_models.ErrorResponseSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dictionary-service_internal_models.ErrorResponseSwagger'
+      summary: Получить список городов
+      tags:
+      - dictionary
+  /dictionary/countries:
+    get:
+      description: Возвращает страны с пагинацией, фильтрацией и сортировкой. Язык
+        из Accept-Language.
+      parameters:
+      - default: en
+        description: Язык (ru, kk, en)
+        in: header
+        name: Accept-Language
+        type: string
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Записей на странице (макс 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Поиск по code, name
+        in: query
+        name: search
+        type: string
+      - default: code
+        description: Поле сортировки (code, name)
+        in: query
+        name: sort_by
+        type: string
+      - default: asc
+        description: Порядок (asc, desc)
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dictionary-service_internal_models.CountriesSuccessResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dictionary-service_internal_models.ErrorResponseSwagger'
+      summary: Получить список стран
+      tags:
+      - dictionary
+  /dictionary/error:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает локализованное сообщение об ошибке по коду. Язык из
+        Accept-Language.
+      parameters:
+      - default: en
+        description: Язык (ru, kk, en)
+        in: header
+        name: Accept-Language
+        type: string
+      - description: Код ошибки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dictionary-service_internal_models.GetErrorRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dictionary-service_internal_models.LocalizedErrorSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dictionary-service_internal_models.ErrorResponseSwagger'
+      summary: Получить локализованную ошибку
+      tags:
+      - dictionary
+  /dictionary/errors:
+    get:
+      description: Возвращает список всех локализованных ошибок. Язык из Accept-Language.
+      parameters:
+      - default: en
+        description: Язык (ru, kk, en)
+        in: header
+        name: Accept-Language
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dictionary-service_internal_models.ErrorsListSuccessResponse'
+      summary: Получить все ошибки
+      tags:
+      - dictionary
+  /dictionary/languages:
+    get:
+      description: Возвращает список всех поддерживаемых языков. Язык из Accept-Language.
+      parameters:
+      - default: en
+        description: Язык (ru, kk, en)
+        in: header
+        name: Accept-Language
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dictionary-service_internal_models.LanguagesSuccessResponse'
+      summary: Получить все языки
+      tags:
+      - dictionary
+  /dictionary/translations:
+    post:
+      consumes:
+      - application/json
+      description: Возвращает переводы по списку кодов. Язык из Accept-Language.
+      parameters:
+      - default: en
+        description: Язык (ru, kk, en)
+        in: header
+        name: Accept-Language
+        type: string
+      - description: Коды переводов
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dictionary-service_internal_models.GetTranslationsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dictionary-service_internal_models.TranslationsSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dictionary-service_internal_models.ErrorResponseSwagger'
+      summary: Получить переводы
+      tags:
+      - dictionary
+swagger: "2.0"
